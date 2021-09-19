@@ -1,17 +1,18 @@
-mod text_fetchers;
+pub mod text_fetchers;
 use crabler::{async_trait, CrablerError, Element, ImmutableWebScraper, Opts, Response, Result};
-use std::compile_error;
 
 #[derive(ImmutableWebScraper)]
-#[on_html("div.rich-text.single__rich-text___BlzVF > p", print_handler)]
+#[on_html("div.rich-text.single__rich-text___BlzVF > p", run)]
 struct Scraper {}
 
 impl Scraper {
-    async fn print_handler(&self, _: Response, element: Element) -> Result<()> {
+    async fn pre_run(&self, _: Response, element: Element) -> String {
         println!("{}", element.deep_text());
 
-        Ok(())
+        "".to_owned()
     }
+
+    article_fetcher!(pre_run, run);
 }
 
 #[async_std::main]

@@ -1,7 +1,26 @@
-mod text_processor;
+pub mod text_processor;
 
 use crabler::{ImmutableWebScraper, MutableWebScraper, Opts, Result};
 use futures::future;
+
+#[macro_export]
+macro_rules! article_fetcher {
+    ($pre_html_func:ident, $on_html_func:ident) => {
+        async fn $on_html_func(
+            &self,
+            response: crabler::Response,
+            element: crabler::Element,
+        ) -> crabler::Result<()> {
+            let text: String = self.$pre_html_func(response, element).await;
+
+            async_std::task::spawn(async {
+                $crate::text_fetchers::text_processor::process_article(text);
+            });
+
+            Ok(())
+        }
+    };
+}
 
 pub trait LinkFetcher: MutableWebScraper {
     fn get_site(&self) -> String;
@@ -32,8 +51,6 @@ async fn execute_text_fetcher(text_fetcher: &mut TextFetcher) -> Result<()> {
         .map(|l| article_fetcher.run(Opts::new().with_urls(vec![l.as_str()])));
 
     future::join_all(futures).await;
-    // Make a macro that implements the run method properly for the ImmutableWebScraper
-    // the run method implemented should use the text gotten from a pre_run method and pass it through the text processor for the article within a new task
 
     Ok(())
 }
