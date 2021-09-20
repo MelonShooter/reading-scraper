@@ -11,10 +11,11 @@ macro_rules! article_fetcher {
             response: crabler::Response,
             element: crabler::Element,
         ) -> crabler::Result<()> {
-            let text: String = self.$pre_html_func(response, element).await;
+            let article: $crate::text_fetchers::Article =
+                self.$pre_html_func(response, element).await;
 
             async_std::task::spawn(async {
-                $crate::text_fetchers::text_processor::process_article(text);
+                $crate::text_fetchers::text_processor::process_article(article);
             });
 
             Ok(())
@@ -22,8 +23,9 @@ macro_rules! article_fetcher {
     };
 }
 
+/// Link fetchers should pick up as many links as they can for the article fetchers.
 pub trait LinkFetcher: MutableWebScraper {
-    fn get_site(&self) -> String;
+    fn get_sites(&self) -> Vec<&str>;
     fn get_links(&self) -> Vec<String>;
 }
 
@@ -36,12 +38,23 @@ pub struct TextFetchers {
     text_fetchers: Vec<TextFetcher>,
 }
 
+pub struct Article {
+    pub title: String,
+    pub link: String,
+    pub body: String,
+}
+
+impl Article {
+    pub fn new(title: String, link: String, body: String) -> Self {
+        Self { title, link, body }
+    }
+}
+
 async fn execute_text_fetcher(text_fetcher: &mut TextFetcher) -> Result<()> {
     let link_fetcher = &mut text_fetcher.link_fetcher;
-    let site = link_fetcher.get_site();
 
     link_fetcher
-        .run(Opts::new().with_urls(vec![site.as_str()]))
+        .run(Opts::new().with_urls(link_fetcher.get_sites()))
         .await?;
 
     let article_fetcher = &mut text_fetcher.article_fetcher;
@@ -62,6 +75,9 @@ impl TextFetchers {
         }
     }
 
+    /// Registers a text fetcher. Link fetchers should pick up
+    /// as many links as they can for the article fetchers while
+    /// the article fetchers should get all the articles it can.
     pub fn register(
         &mut self,
         link_fetcher: Box<dyn LinkFetcher>,
