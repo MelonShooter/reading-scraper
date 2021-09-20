@@ -12,8 +12,8 @@ edition = "2018"
     rayon = "1.5"
 
 [patch.crates-io]
-    #crabler = { git = "https://github.com/MelonShooter/crabler-fork" }
-     crabler = { path = "../crabler-fork" }
+    crabler = { git = "https://github.com/MelonShooter/crabler-fork" }
+    # crabler = { path = "../crabler-fork" }
     crabquery = { git = "https://github.com/MelonShooter/crabquery-fork" }
 
 [profile.dev.package."*"]
