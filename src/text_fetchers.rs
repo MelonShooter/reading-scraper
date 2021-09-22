@@ -11,7 +11,7 @@ macro_rules! article_fetcher {
             response: crabler::Response,
             element: crabler::Element,
         ) -> crabler::Result<()> {
-            let article: $crate::text_fetchers::Article =
+            let article: $crate::text_fetchers::text_processor::Article =
                 self.$pre_html_func(response, element).await;
 
             async_std::task::spawn(async {
@@ -36,18 +36,6 @@ struct TextFetcher {
 
 pub struct TextFetchers {
     text_fetchers: Vec<TextFetcher>,
-}
-
-pub struct Article {
-    pub title: String,
-    pub link: String,
-    pub body: String,
-}
-
-impl Article {
-    pub fn new(title: String, link: String, body: String) -> Self {
-        Self { title, link, body }
-    }
 }
 
 async fn execute_text_fetcher(text_fetcher: &mut TextFetcher) -> Result<()> {
