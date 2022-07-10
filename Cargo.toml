@@ -8,13 +8,14 @@ edition = "2018"
 [dependencies]
     async-std = "1.8"
     crabler = "0.1"
-    futures = "0.3"
     lazy_static = "1.4"
     regex = "1.5"
+    simple_logger = "2"
+    log = "0.4"
 
 [patch.crates-io]
-    crabler = { git = "https://github.com/MelonShooter/crabler-fork" }
-    # crabler = { path = "../crabler-fork" }
+    #crabler = { git = "https://github.com/MelonShooter/crabler-fork" }
+    crabler = { path = "../crabler-fork" }
     crabquery = { git = "https://github.com/MelonShooter/crabquery-fork" }
 
 [profile.dev.package."*"]
