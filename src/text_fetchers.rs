@@ -1,9 +1,8 @@
 pub mod text_processor;
 
-use async_std::channel::{self, Receiver, Sender};
-use async_std::task;
-use crabler::{ImmutableWebScraper, Opts};
 use std::iter;
+use tokio::sync::{self, Receiver, Sender};
+use tokio::task;
 
 use self::text_processor::Article;
 
